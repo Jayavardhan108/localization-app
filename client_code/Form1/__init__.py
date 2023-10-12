@@ -23,8 +23,9 @@ class Form1(Form1Template):
   def update_json(self, old_data, new_data):
     old_data = json.loads(old_data.text)
     new_data = json.loads(new_data.text)
-    
-    updated_data = self.update_json_values(old_data, new_data)
+
+    new_data_lower = {k.lower(): v for k, v in new_data.items()}
+    updated_data = self.update_json_values(old_data, new_data_lower)
     self.checkLogs(old_data,new_data)
     return json.dumps(updated_data, indent=4)
 
@@ -35,8 +36,8 @@ class Form1(Form1Template):
               if(isinstance(old_data[key], dict) or isinstance(old_data[key], list)):
                 updated_data[key] = self.update_json_values(old_data[key], new_data)
               else:
-                if old_data[key] in new_data:
-                  updated_data[key] = new_data[old_data[key]]
+                if (isinstance(old_data[key], str) and old_data[key].lower() in new_data):
+                  updated_data[key] = new_data[old_data[key].lower()]
                 else:
                   updated_data[key] = old_data[key]
           return updated_data
@@ -53,7 +54,10 @@ class Form1(Form1Template):
             if(isinstance(old_data[i], dict) or isinstance(old_data[i], list)):
               updated_data.append(self.update_json_values(old_data[i], new_data))
             else:
-              updated_data.append(old_data[i])
+              if (isinstance(old_data[i], str) and old_data[i].lower() in new_data):
+               updated_data.append(new_data[old_data[i].lower()])
+              else:
+                updated_data.append(old_data[i])
           return updated_data
       else:
           return new_data
