@@ -25,10 +25,22 @@ class Form1(Form1Template):
     new_data = json.loads(new_data.text)
 
     new_data_lower = {k.lower(): v for k, v in new_data.items()}
-    updated_data = self.update_json_values(old_data, new_data_lower)
+    if(self.is_help_info.checked):
+      updated_data = self.update_help_info_json(old_data, new_data)
+    else:
+      updated_data = self.update_json_values(old_data, new_data_lower)
     self.checkLogs(old_data,new_data)
     return json.dumps(updated_data, indent=4)
 
+  def update_help_info_json(self, old_data, new_data):
+    content = old_data['content']
+    content = content[1:-1]
+    for key in new_data:
+        if content.find(key) != -1:
+          content = content.replace(key, new_data[key])
+    old_data['content'] = content
+    return old_data
+    
   def update_json_values(self, old_data, new_data):
       if isinstance(old_data, dict) and isinstance(new_data, dict):
           updated_data = {}
